@@ -29,15 +29,19 @@ app.use("/api/v1", order);
 app.use("/api/v1", payment);
 
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../frontend/build")));
-
-
-// The catch-all handler: for any request that doesn't match any API routes,
-// send back the index.html file from the build folder
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+  res.redirect(process.env.FRONTEND_URL);
 });
+
+// // Serve static files from the React app
+// app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+
+// // The catch-all handler: for any request that doesn't match any API routes,
+// // send back the index.html file from the build folder
+// app.get("*", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+// });
 
 //middleware for errors
 app.use(errorMiddleware);
