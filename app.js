@@ -29,8 +29,12 @@ app.use("/api/v1", order);
 app.use("/api/v1", payment);
 
 
-app.get("*", (req, res) => {
-  res.redirect(process.env.FRONTEND_URL);
+app.get("*", async (req, res) => {
+  try {
+    res.status(200).json({msg: "Connected to server"});
+  } catch (error) {
+    res.status(200).json({msg: "Error in server"});
+  }
 });
 
 // // Serve static files from the React app
