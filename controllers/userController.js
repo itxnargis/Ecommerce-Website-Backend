@@ -55,8 +55,10 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     if (!isPasswordMatched) {
         return next(new ErrorHandler("Invalid email or password", 401));
     }
+
     sendToken(user, 200, res);
 });
+
 
 //Logout user
 
@@ -142,15 +144,24 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
     sendToken(user, 200, res);
 });
 
-//Get User Details
+// Get User Details
 exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
-    const user = await User.findById(req.user.id);
+    try {
+        const user = await User.findById(req.user.id);
 
-    res.status(200).json({
-        success: true,
-        user,
-    });
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    } catch (error) {
+        return next(new ErrorHandler("Failed to load user details", 500));
+    }
 });
+
 
 //Update User password
 exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
