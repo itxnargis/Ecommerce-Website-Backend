@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail.js");
 const crypto = require("crypto");
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
 
 
 //Register a user
@@ -19,7 +19,6 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 
     const { name, email, password } = req.body;
 
-    console.log(name, email, password)
     const user = await User.create({
         name, email, password,
         avatar: {
@@ -28,7 +27,6 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         },
     });
 
-    console.log(user);
     sendToken(user, 201, res);
 });
 

@@ -27,7 +27,6 @@ app.use(cors({
     credentials: true
 }));
 
-
 // Route imports
 const product = require("./routes/productRoute");
 const user = require("./routes/userRoute");
