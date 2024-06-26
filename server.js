@@ -2,7 +2,6 @@ const path = require("path");
 const app = require("./app");
 const cloudinary = require("cloudinary").v2; // Ensure correct import
 const connectDatabase = require("./config/database");
-
 // Load environment variables
 const envPath = path.join(__dirname, "config", "config.env");
 const result = require("dotenv").config({ path: envPath });
