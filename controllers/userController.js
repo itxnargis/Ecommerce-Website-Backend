@@ -8,20 +8,24 @@ const crypto = require("crypto");
 const cloudinary = require("cloudinary").v2;
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
+    console.log("Register user called");
+
     let myCloud = {
         public_id: "default_avatar",
         secure_url: "https://www.example.com/default_avatar.png",
     };
 
-    // Only attempt to upload to Cloudinary if an avatar is provided
-    if (req.body.avatar && req.body.avatar !== "") {
+    if (req.body.avatar && req.body.avatar.trim() !== "") {
+        console.log("Avatar provided, attempting Cloudinary upload");
         try {
             myCloud = await cloudinary.uploader.upload(req.body.avatar, {
                 folder: "avatars",
                 width: 150,
                 crop: "scale",
             });
+            console.log("Cloudinary upload successful", myCloud);
         } catch (error) {
+            console.error("Cloudinary upload failed", error);
             return next(new ErrorHandler("Cloudinary upload failed", 500));
         }
     }
@@ -39,16 +43,22 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
             },
         });
 
+        console.log("User created successfully");
+
+        // Send token
         sendToken(user, 201, res);
 
+        // Ensure success message is sent
         res.status(201).json({
             success: true,
             message: "User registered successfully",
         });
     } catch (error) {
+        console.error("User registration failed", error);
         return next(new ErrorHandler("User registration failed", 500));
     }
 });
+
 
 // Login user
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
