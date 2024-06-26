@@ -7,18 +7,22 @@ const sendEmail = require("../utils/sendEmail.js");
 const crypto = require("crypto");
 const cloudinary = require("cloudinary").v2;
 
-
-//Register a user
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
-    let myCloud;
-    try {
-        myCloud = await cloudinary.uploader.upload(req.body.avatar, {
-            folder: "avatars",
-            width: 150,
-            crop: "scale",
-        });
-    } catch (error) {
-        return next(new ErrorHandler("Cloudinary upload failed", 500));
+    let myCloud = {
+        public_id: "default_avatar",
+        secure_url: "https://www.example.com/default_avatar.png",
+    };
+
+    if (req.body.avatar) {
+        try {
+            myCloud = await cloudinary.uploader.upload(req.body.avatar, {
+                folder: "avatars",
+                width: 150,
+                crop: "scale",
+            });
+        } catch (error) {
+            return next(new ErrorHandler("Cloudinary upload failed", 500));
+        }
     }
 
     const { name, email, password } = req.body;
@@ -32,7 +36,12 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     });
 
     sendToken(user, 201, res);
+    res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+    });
 });
+
 
 
 // Login user
