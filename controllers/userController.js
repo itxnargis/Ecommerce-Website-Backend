@@ -13,7 +13,8 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         secure_url: "https://www.example.com/default_avatar.png",
     };
 
-    if (req.body.avatar) {
+    // Only attempt to upload to Cloudinary if an avatar is provided
+    if (req.body.avatar && req.body.avatar !== "") {
         try {
             myCloud = await cloudinary.uploader.upload(req.body.avatar, {
                 folder: "avatars",
@@ -27,22 +28,26 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 
     const { name, email, password } = req.body;
 
-    const user = await User.create({
-        name,
-        email,
-        password,
-        avatar: {
-            public_id: myCloud.public_id,
-            url: myCloud.secure_url,
-        },
-    });
+    try {
+        const user = await User.create({
+            name,
+            email,
+            password,
+            avatar: {
+                public_id: myCloud.public_id,
+                url: myCloud.secure_url,
+            },
+        });
 
-    sendToken(user, 201, res);
+        sendToken(user, 201, res);
 
-    res.status(201).json({
-        success: true,
-        message: "User registered successfully",
-    });
+        res.status(201).json({
+            success: true,
+            message: "User registered successfully",
+        });
+    } catch (error) {
+        return next(new ErrorHandler("User registration failed", 500));
+    }
 });
 
 // Login user
