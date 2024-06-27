@@ -88,6 +88,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
             message: `Email sent to ${user.email} successfully`,
         });
     } catch (error) {
+        console.error(`Error in forgotPassword controller: ${error.message}`);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
         await user.save({ validateBeforeSave: false });
@@ -95,6 +96,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler('Email could not be sent. Please try again later.', 500));
     }
 });
+
 
 
 exports.resetPassword = catchAsyncErrors(async (req, res, next) => {

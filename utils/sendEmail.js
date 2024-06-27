@@ -1,15 +1,15 @@
-const nodeMailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
     try {
-        const transporter = nodeMailer.createTransport({
+        const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: Number(process.env.SMTP_PORT),
             secure: true, // Use SSL/TLS
             auth: {
                 user: process.env.SMTP_MAIL,
                 pass: process.env.SMTP_PASSWORD, // Use the app-specific password here
-            }
+            },
         });
 
         const mailOptions = {
