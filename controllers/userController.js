@@ -70,6 +70,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("User not found", 404));
     }
 
+    console.log("User found, generating reset token")
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
@@ -77,12 +78,14 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
     const message = `Your password reset token is: \n\n ${resetPasswordUrl} \n\nIf you have not requested this email, then please ignore it.`;
 
     try {
+        console.log("Sending reset email")
         await sendEmail({
             email: user.email,
             subject: 'Ecommerce Password Recovery',
             message,
         });
 
+        console.log("reset email Send successfully");
         res.status(200).json({
             success: true,
             message: `Email sent to ${user.email} successfully`,
