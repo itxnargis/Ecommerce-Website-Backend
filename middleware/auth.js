@@ -6,11 +6,13 @@ const User = require("../models/userModel");
 
 
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
-    const { token } = req.cookies;
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-        return next(new ErrorHandler("Please login to access this resource",401));
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return next(new ErrorHandler("Please login to access this resource", 401));
     }
+
+    const token = authHeader.split(' ')[1];
 
     const decodeData = jwt.verify(token, process.env.JWT_SECRET);
 
