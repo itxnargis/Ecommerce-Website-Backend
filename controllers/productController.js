@@ -47,7 +47,7 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
 
 //get all products
 exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
-  const resultPerPage = 4;
+  const resultPerPage = 8;
 //   res.status(200).json({
 //     success: true,
 //     products,
