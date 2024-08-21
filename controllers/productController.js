@@ -83,38 +83,44 @@ exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
 exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
   if (!product) {
-    return next(new ErrorHander("Product not found", 404));
+      return next(new ErrorHander("Product not found", 404));
   }
   let images = [];
   if (typeof req.body.images === "string") {
-    images.push(req.body.images);
+      images.push(req.body.images);
   } else {
-    images = req.body.images;
+      images = req.body.images;
   }
-  if (images !== undefined) {
-    for (let i = 0; i < product.images.length; i++) {
-      await cloudinary.v2.uploader.deleteOne(product.images[i].public_id);
-    }
-    const imagesLinks = [];
-    for (let i = 0; i < images.length; i++) {
-      const result = await cloudinary.v2.uploader.upload(images[i], {
-        folder: "products",
-      });
-      imagesLinks.push({
-        public_id: result.public_id,
-        url: result.secure_url,
-      });
-    }
-    req.body.images = imagesLinks;
+  if (images !== undefined && images.length > 0) {
+      for (let i = 0; i < product.images.length; i++) {
+          if (product.images[i].public_id) {
+              await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+          }
+      }
+      try {
+          const imagesLinks = [];
+          for (let i = 0; i < images.length; i++) {
+              const result = await cloudinary.v2.uploader.upload(images[i], {
+                  folder: "products",
+              });
+              imagesLinks.push({
+                  public_id: result.public_id,
+                  url: result.secure_url,
+              });
+          }
+          req.body.images = imagesLinks;
+      } catch (error) {
+          return next(new ErrorHander("Image upload failed", 500));
+      }
   }
   product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-    useFindAndModify: false,
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
   });
   res.status(200).json({
-    success: true,
-    product,
+      success: true,
+      product,
   });
 });
 exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
