@@ -91,7 +91,7 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
   } else {
       images = req.body.images;
   }
-  if (images !== undefined && images.length > 0) {
+  if (images.length > 0) {
       for (let i = 0; i < product.images.length; i++) {
           if (product.images[i].public_id) {
               await cloudinary.v2.uploader.destroy(product.images[i].public_id);
