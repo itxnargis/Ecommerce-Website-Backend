@@ -1,7 +1,10 @@
-
 const mongoose = require("mongoose");
-
 const productSchema = mongoose.Schema({
+  brand: {
+    type: String,
+    required: [true, "Please Enter brand of the product"],
+    trim: true,
+  },
   name: {
     type: String,
     required: [true, "Please Enter product Name"],
@@ -78,5 +81,4 @@ const productSchema = mongoose.Schema({
     default: Date.now,
   },
 });
-
 module.exports = mongoose.model("Product", productSchema);
