@@ -160,29 +160,25 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
     };
 
     if (req.body.avatar && req.body.avatar !== "") {
-        // Fetch the current user's data
         const user = await User.findById(req.user.id);
+        const imageId = user.avatar.public_id;
 
-        // Delete the old avatar from Cloudinary if it exists
-        if (user.avatar.public_id) {
-            await cloudinary.uploader.destroy(user.avatar.public_id);
-        }
+        // Ensure the cloudinary delete function is correct
+        await cloudinary.uploader.destroy(imageId);
 
-        // Upload the new avatar to Cloudinary
+        // Ensure the cloudinary upload function is correct
         const myCloud = await cloudinary.uploader.upload(req.body.avatar, {
             folder: "avatars",
             width: 150,
             crop: "scale",
         });
 
-        // Update the new avatar in the newUserData object
         newUserData.avatar = {
             public_id: myCloud.public_id,
             url: myCloud.secure_url,
         };
     }
 
-    // Update the user's data in the database
     const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
         new: true,
         runValidators: true,
@@ -191,9 +187,9 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        user, // Send back the updated user data if needed
     });
 });
+
 
 
 
