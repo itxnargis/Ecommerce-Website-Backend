@@ -159,15 +159,16 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
         email: req.body.email,
     };
 
-    // Check if the user provided a new avatar
     if (req.body.avatar) {
         const user = await User.findById(req.user.id);
-        if (user.avatar.public_id !== "default_avatar") {
-            // Delete the user's old avatar from Cloudinary
-            await cloudinary.uploader.destroy(user.avatar.public_id);
+        const imageId = user.avatar.public_id;
+
+        // Delete the old image if it exists
+        if (imageId) {
+            await cloudinary.uploader.destroy(imageId);
         }
 
-        // Upload the new avatar
+        // Upload the new image
         const myCloud = await cloudinary.uploader.upload(req.body.avatar, {
             folder: "avatars",
             width: 150,
@@ -188,9 +189,9 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        user,
     });
 });
+
 
 exports.getAllUser = catchAsyncErrors(async (req, res, next) => {
     const users = await User.find();
