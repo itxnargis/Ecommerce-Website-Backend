@@ -155,39 +155,42 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
 
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
     const newUserData = {
-      name: req.body.name,
-      email: req.body.email,
+        name: req.body.name,
+        email: req.body.email,
     };
 
-    if (req.body.avatar && req.body.avatar !== "") {
-      // Handle Cloudinary upload here
-      const myCloud = await cloudinary.uploader.upload(req.body.avatar, {
-        folder: "avatars",
-        width: 150,
-        crop: "scale",
-      });
+    // Check if the user provided a new avatar
+    if (req.body.avatar) {
+        const user = await User.findById(req.user.id);
+        if (user.avatar.public_id !== "default_avatar") {
+            // Delete the user's old avatar from Cloudinary
+            await cloudinary.uploader.destroy(user.avatar.public_id);
+        }
 
-      newUserData.avatar = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
+        // Upload the new avatar
+        const myCloud = await cloudinary.uploader.upload(req.body.avatar, {
+            folder: "avatars",
+            width: 150,
+            crop: "scale",
+        });
+
+        newUserData.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+        };
     }
 
-    // Update user in the database
     const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
-      new: true,
-      runValidators: true,
-      useFindAndModify: false,
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
     });
 
     res.status(200).json({
-      success: true,
+        success: true,
+        user,
     });
-  });
-
-
-
-
+});
 
 exports.getAllUser = catchAsyncErrors(async (req, res, next) => {
     const users = await User.find();
